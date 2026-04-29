@@ -1,0 +1,21 @@
+{
+  "name": "ai-repo-agent",
+  "version": "1.0.0",
+  "description": "AI Agent - GitHub Repository Cloner with Code Assistant",
+  "scripts": {
+    "dev": "npm run cleanup && concurrently --kill-others --success first --prefix-colors \"blue,green\" \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cross-env NODE_OPTIONS=--max-old-space-size=512 npm run start:dev --prefix backend",
+    "dev:frontend": "cross-env NODE_OPTIONS=--max-old-space-size=1024 npm run dev --prefix frontend",
+    "cleanup": "powershell -ExecutionPolicy Bypass -File ./cleanup.ps1",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:backend": "cd backend && npm run start:prod",
+    "start:frontend": "cd frontend && npm run start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "cross-env": "^10.1.0"
+  }
+}
