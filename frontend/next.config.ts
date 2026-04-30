@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
     keepAlive: false,
   },
 
+  // Disable compression middleware for SSE streaming
+  compress: false,
+
   async rewrites() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
     const baseUrl = apiUrl.replace(/\/$/, '');
