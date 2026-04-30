@@ -70,7 +70,12 @@
       "Bash(timeout 15)",
       "Bash(.\\\\start-ngrok-both-fixed.ps1)",
       "Bash(dir /b *.ps1 *.yml *.md)",
-      "Bash(findstr /i \"ngrok cloudflare localtunnel start-\")"
+      "Bash(findstr /i \"ngrok cloudflare localtunnel start-\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git pull *)",
+      "Bash(git branch *)"
     ]
   }
 }
