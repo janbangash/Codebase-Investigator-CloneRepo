@@ -602,8 +602,10 @@ export default function Home() {
       return (
         <div key={fullPath}>
           <div
-            className={`flex items-center gap-2 px-2 py-1 hover:bg-gray-700 rounded cursor-pointer ${
-              fileContent?.path === fullPath ? 'bg-gray-700' : ''
+            className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-all group ${
+              fileContent?.path === fullPath
+                ? 'bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30'
+                : 'hover:bg-[var(--border-color)] border border-transparent'
             }`}
             style={{ paddingLeft: `${depth * 12 + 8}px` }}
             onClick={(e) => {
@@ -617,7 +619,7 @@ export default function Home() {
           >
             {entry.type === 'folder' ? (
               <svg
-                className={`w-4 h-4 text-gray-400 transition-transform ${
+                className={`w-3.5 h-3.5 text-gray-500 transition-transform ${
                   isExpanded ? 'rotate-90' : ''
                 }`}
                 fill="none"
@@ -627,7 +629,7 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             ) : (
-              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5 text-gray-500 group-hover:text-gray-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -637,11 +639,11 @@ export default function Home() {
               </svg>
             )}
             {entry.type === 'folder' ? (
-              <svg className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-4 h-4 text-yellow-500/80 group-hover:text-yellow-400 transition-colors" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
               </svg>
             ) : (
-              <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-blue-400/80 group-hover:text-blue-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -650,12 +652,18 @@ export default function Home() {
                 />
               </svg>
             )}
-            <span className="text-gray-300 text-sm truncate">{entry.name}</span>
+            <span className="text-gray-300 text-xs sm:text-sm truncate flex-1 group-hover:text-white transition-colors">{entry.name}</span>
           </div>
           {entry.type === 'folder' && isExpanded && (
             <div>
               {children.length > 0 ? renderFileTree(children, depth + 1, fullPath) : (
-                <div className="text-gray-500 text-xs pl-6 py-1">Loading...</div>
+                <div className="text-gray-500 text-xs pl-6 py-2 flex items-center gap-2">
+                  <svg className="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Loading...
+                </div>
               )}
             </div>
           )}
@@ -666,345 +674,395 @@ export default function Home() {
 
   const highlightText = (text: string, query: string) => {
     if (!query) return text;
-    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    // Escape special regex characters safely
+    const escapedQuery = query.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+    const regex = new RegExp('(' + escapedQuery + ')', 'gi');
     const parts = text.split(regex);
     return parts.map((part, i) =>
-      regex.test(part) ? <mark key={i} className="bg-yellow-500/50 text-white px-0.5 rounded">{part}</mark> : part
+      regex.test(part) ? <mark key={i} className="bg-[var(--accent-secondary)]/30 text-[var(--accent-secondary)] px-0.5 rounded font-medium">{part}</mark> : part
     );
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
-      <div className="h-screen flex flex-col" suppressHydrationWarning>
-        <header className="bg-gray-800 border-b border-gray-700 px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-white">GitHub Repository Cloner</h1>
-            <p className="text-gray-400 text-sm mt-1">
-              Clone repositories to: <code className="bg-gray-700 px-2 py-1 rounded">{DEFAULT_TARGET_FOLDER}</code>
+    <div className="min-h-screen bg-[var(--background)] flex flex-col" suppressHydrationWarning>
+      {/* Header */}
+      <header className="bg-[var(--panel-bg)] border-b border-[var(--border-color)] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between sticky top-0 z-50 backdrop-blur-sm bg-opacity-95">
+        <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+          {/* Logo/Icon */}
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center shrink-0 shadow-lg">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+          </div>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-base sm:text-xl font-bold text-[var(--foreground)] truncate">Codebase Investigator</h1>
+            <p className="text-xs sm:text-sm text-gray-400 hidden sm:block">
+              AI-Powered Code Explorer
             </p>
           </div>
-          {selectedRepo && (
-            <button
-              onClick={() => setChatOpen(!chatOpen)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                chatOpen ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
-                AI Chat
-              </div>
-            </button>
-          )}
-        </header>
+        </div>
 
-        <div className="flex-1 flex overflow-hidden">
-          {/* Left Sidebar - Clone Form & Repo List */}
-          <div className="w-96 bg-gray-800 border-r border-gray-700 flex flex-col overflow-hidden">
-            <div className="p-4 border-b border-gray-700">
-              <form onSubmit={handleSubmit} className="space-y-3">
-                <div>
-                  <label htmlFor="url" className="block text-sm font-medium text-gray-300 mb-1">
-                    GitHub Repository URL
-                  </label>
-                  <input
-                    id="url"
-                    type="url"
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
-                    placeholder="https://github.com/owner/repo"
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                    required
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white font-medium rounded transition-colors text-sm"
-                >
-                  {loading ? 'Cloning...' : 'Clone Repository'}
-                </button>
-                {message && (
-                  <div
-                    className={`p-2 rounded text-sm ${
-                      message.type === 'success'
-                        ? 'bg-green-900/50 text-green-200'
-                        : 'bg-red-900/50 text-red-200'
-                    }`}
-                  >
-                    {message.text}
-                  </div>
+        {selectedRepo && (
+          <button
+            onClick={() => setChatOpen(!chatOpen)}
+            className={`ml-2 sm:ml-4 px-3 sm:px-4 py-2 rounded-lg font-medium transition-all shadow-md hover:shadow-lg flex items-center gap-2 ${
+              chatOpen
+                ? 'bg-gradient-to-r from-[var(--accent-secondary)] to-purple-500 text-white'
+                : 'bg-[var(--sidebar-bg)] text-gray-300 hover:bg-[var(--border-color)] border border-[var(--border-color)]'
+            }`}
+          >
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            </svg>
+            <span className="hidden sm:inline">AI Chat</span>
+          </button>
+        )}
+      </header>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Sidebar - Clone Form & Repo List - Collapsible on mobile */}
+        <div className="w-72 sm:w-80 lg:w-96 bg-[var(--sidebar-bg)] border-r border-[var(--border-color)] flex flex-col overflow-hidden absolute sm:relative z-40 h-full transform transition-transform duration-300 ease-in-out">
+          {/* Clone Form */}
+          <div className="p-3 sm:p-4 border-b border-[var(--border-color)] bg-gradient-to-b from-[var(--panel-bg)] to-[var(--sidebar-bg)]">
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div>
+                <label htmlFor="url" className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                  Repository URL
+                </label>
+                <input
+                  id="url"
+                  type="url"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="https://github.com/owner/repo"
+                  className="w-full px-3 py-2 sm:py-2.5 bg-[var(--panel-bg)] border border-[var(--border-color)] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent text-sm transition-all"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-2 sm:py-2.5 px-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 disabled:from-gray-600 disabled:to-gray-500 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg text-sm sm:text-base"
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    Cloning...
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    Clone Repository
+                  </span>
                 )}
-              </form>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-4">
-              <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                Cloned Repositories
-              </h2>
-              <div className="space-y-3">
-                {Object.values(repoStatuses).map(({ repoName, progress }) => (
-                  <div
-                    key={repoName}
-                    className={`bg-gray-700 rounded-lg p-3 cursor-pointer transition-colors ${
-                      selectedRepo === repoName ? 'ring-2 ring-blue-500' : 'hover:bg-gray-650'
-                    }`}
-                    onClick={() => {
-                      setSelectedRepo(repoName);
-                      fetchFiles(repoName);
-                      setFileContent(null);
-                      setSearchActive(false);
-                      setChatMessages([]);
-                    }}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-white font-medium text-sm truncate">{repoName}</span>
-                      <span
-                        className={`px-2 py-0.5 rounded text-xs font-medium text-white ${getStatusColor(
-                          progress.status
-                        )}`}
-                      >
-                        {progress.status === 'completed' ? 'DONE' : progress.status.toUpperCase()}
-                      </span>
-                    </div>
-                    {progress.error && (
-                      <p className="text-red-400 text-xs mt-1">{progress.error}</p>
-                    )}
-                    {progress.progress !== undefined && (
-                      <div className="mt-2">
-                        <div className="flex justify-between text-xs mb-1">
-                          <span className="text-gray-400">Progress</span>
-                          <span className="text-white font-medium">{progress.progress}%</span>
-                        </div>
-                        <div className="bg-gray-600 rounded-full h-2">
-                          <div
-                            className={`h-2 rounded-full transition-all duration-300 ${
-                              progress.status === 'completed' ? 'bg-green-500' : 'bg-blue-500'
-                            }`}
-                            style={{ width: `${progress.progress}%` }}
-                          />
-                        </div>
-                      </div>
-                    )}
-                    {!progress.error && progress.status !== 'completed' && progress.message && (
-                      <p className="text-gray-400 text-xs mt-2">{progress.message}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
+              </button>
+              {message && (
+                <div
+                  className={`p-2.5 rounded-lg text-sm flex items-center gap-2 ${
+                    message.type === 'success'
+                      ? 'bg-green-900/30 text-green-300 border border-green-800/50'
+                      : 'bg-red-900/30 text-red-300 border border-red-800/50'
+                  }`}
+                >
+                  {message.type === 'success' ? (
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                  {message.text}
+                </div>
+              )}
+            </form>
           </div>
 
-          {/* Right Content - File Browser & AI Agent */}
-          <div className={`flex-1 flex overflow-hidden ${chatOpen ? 'mr-96' : ''}`}>
-            {/* File List / Search Results */}
-            <div className="w-80 bg-gray-800 border-r border-gray-700 flex flex-col overflow-hidden">
-              <div className="p-3 border-b border-gray-700">
-                <div className="flex items-center justify-between mb-2">
-                  <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
-                    {selectedRepo || 'Select a repository'}
-                  </h2>
-                  {pathHistory.length > 0 && !searchActive && (
-                    <button
-                      onClick={handleBack}
-                      className="text-gray-400 hover:text-white transition-colors"
-                      title="Go back"
+          {/* Repo List */}
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4">
+            <h2 className="text-xs sm:text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+              </svg>
+              Repositories
+            </h2>
+            <div className="space-y-2">
+              {Object.values(repoStatuses).map(({ repoName, progress }) => (
+                <div
+                  key={repoName}
+                  className={`bg-[var(--panel-bg)] rounded-lg p-3 cursor-pointer transition-all group ${
+                    selectedRepo === repoName
+                      ? 'ring-2 ring-[var(--accent-primary)] shadow-lg shadow-blue-900/20'
+                      : 'hover:bg-[var(--border-color)] border border-transparent hover:border-[var(--border-color)]'
+                  }`}
+                  onClick={() => {
+                    setSelectedRepo(repoName);
+                    fetchFiles(repoName);
+                    setFileContent(null);
+                    setSearchActive(false);
+                    setChatMessages([]);
+                  }}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-white font-medium text-sm truncate flex-1">{repoName}</span>
+                    <span
+                      className={`ml-2 px-2 py-0.5 rounded-full text-xs font-medium text-white shrink-0 ${
+                        progress.status === 'completed' ? 'bg-green-600' :
+                        progress.status === 'error' ? 'bg-red-600' :
+                        progress.status === 'cloning' ? 'bg-blue-600 animate-pulse' :
+                        'bg-yellow-600'
+                      }`}
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 19l-7-7 7-7"
-                        />
-                      </svg>
-                    </button>
-                  )}
-                </div>
-                {/* AI Search Agent */}
-                <div className="relative mt-2">
-                  <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
+                      {progress.status === 'completed' ? '✓' : progress.status === 'error' ? '!' : progress.status === 'cloning' ? '⟳' : '○'}
+                    </span>
                   </div>
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search in repo..."
-                    className="w-full pl-8 pr-3 py-1.5 bg-gray-700 border border-gray-600 rounded text-white text-xs placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-purple-500"
-                  />
-                  {isSearching && (
-                    <div className="absolute inset-y-0 right-0 pr-2 flex items-center">
-                      <svg className="animate-spin h-3 w-3 text-purple-400" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  {progress.error && (
+                    <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
+                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                       </svg>
+                      {progress.error}
+                    </p>
+                  )}
+                  {progress.progress !== undefined && (
+                    <div className="mt-2">
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="text-gray-400">Progress</span>
+                        <span className="text-white font-medium">{progress.progress}%</span>
+                      </div>
+                      <div className="bg-[var(--background)] rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-300 ${
+                            progress.status === 'completed' ? 'bg-green-500' : 'bg-gradient-to-r from-blue-500 to-blue-400'
+                          }`}
+                          style={{ width: `${progress.progress}%` }}
+                        />
+                      </div>
                     </div>
                   )}
+                  {!progress.error && progress.status !== 'completed' && progress.message && (
+                    <p className="text-gray-500 text-xs mt-2 truncate">{progress.message}</p>
+                  )}
                 </div>
-                {/* Search Analysis Panel - Always visible when search is active */}
+              ))}
+              {Object.keys(repoStatuses).length === 0 && (
+                <div className="text-center py-8">
+                  <svg className="w-12 h-12 text-gray-600 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                  </svg>
+                  <p className="text-gray-500 text-sm">No repositories yet</p>
+                  <p className="text-gray-600 text-xs mt-1">Clone your first repo above</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content - File Browser & Viewer */}
+        <div className="flex-1 flex overflow-hidden">
+          {/* File List / Search Panel - Collapsible on mobile */}
+          <div className="w-64 sm:w-72 md:w-80 bg-[var(--panel-bg)] border-r border-[var(--border-color)] flex flex-col overflow-hidden absolute sm:relative z-30 h-full transition-all">
+            <div className="p-3 border-b border-[var(--border-color)]">
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-xs sm:text-sm font-semibold text-gray-400 uppercase tracking-wider truncate flex-1">
+                  {selectedRepo || 'Select a repo'}
+                </h2>
+                {pathHistory.length > 0 && !searchActive && (
+                  <button
+                    onClick={handleBack}
+                    className="ml-2 p-1.5 text-gray-400 hover:text-white hover:bg-[var(--border-color)] rounded-lg transition-colors"
+                    title="Go back"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+              {/* AI Search */}
+              <div className="relative mt-2">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search code..."
+                  className="w-full pl-9 pr-8 py-2 sm:py-2 bg-[var(--sidebar-bg)] border border-[var(--border-color)] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[var(--accent-secondary)] focus:border-transparent text-xs sm:text-sm transition-all"
+                />
+                {isSearching && (
+                  <div className="absolute inset-y-0 right-0 pr-2 flex items-center">
+                    <svg className="animate-spin h-4 w-4 text-[var(--accent-secondary)]" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+                {/* Search Analysis Panel */}
                 {(searchActive || searchQuery) && (searchResults.length > 0 || searchAnalysis || isSearching) && (
-                  <div className="mt-2 border-t border-gray-600">
+                  <div className="mt-3 border-t border-[var(--border-color)] pt-3">
                     {/* AI Analysis Header */}
-                    <div className="flex items-center justify-between px-3 py-2 bg-gradient-to-r from-purple-900/40 to-gray-800/50 rounded-t border-b border-gray-700">
-                      <div className="flex items-center gap-2 flex-1">
-                        <svg className="w-4 h-4 text-purple-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="flex items-center justify-between px-3 py-2.5 bg-gradient-to-r from-[var(--accent-secondary)]/10 to-[var(--panel-bg)] rounded-lg border border-[var(--border-color)] mb-3">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <svg className="w-4 h-4 text-[var(--accent-secondary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                         </svg>
-                        <div className="flex items-center gap-3 flex-1 flex-wrap">
-                          <span className="text-xs font-semibold text-purple-300 shrink-0">
-                            AI Query Analysis:
-                          </span>
+                        <div className="flex items-center gap-2 flex-1 min-w-0 flex-wrap">
+                          <span className="text-xs font-semibold text-[var(--accent-secondary)] shrink-0">AI Analysis:</span>
                           {isSearching && !searchAnalysis && (
                             <div className="flex items-center gap-2">
-                              <svg className="animate-spin h-3 w-3 text-purple-400" fill="none" viewBox="0 0 24 24">
+                              <svg className="animate-spin h-3 w-3 text-[var(--accent-secondary)]" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                               </svg>
-                              <span className="text-xs text-gray-400">Analyzing query...</span>
+                              <span className="text-xs text-gray-400">Analyzing...</span>
                             </div>
                           )}
                           {searchAnalysis && (
                             <>
                               {searchAnalysis.keywords && searchAnalysis.keywords.length > 0 && (
-                                <div className="flex items-center gap-1 flex-wrap">
-                                  <span className="text-xs text-gray-400 shrink-0">Keywords:</span>
-                                  {searchAnalysis.keywords.slice(0, 6).map((kw, i) => (
-                                    <span key={i} className="text-xs bg-purple-900/60 text-purple-200 px-2 py-0.5 rounded-full border border-purple-700/50 shrink-0">
+                                <div className="flex items-center gap-1 flex-wrap min-w-0">
+                                  <span className="text-xs text-gray-500 shrink-0">Keywords:</span>
+                                  {searchAnalysis.keywords.slice(0, 5).map((kw, i) => (
+                                    <span key={i} className="text-xs bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)] px-2 py-0.5 rounded-full border border-[var(--accent-secondary)]/30 shrink-0">
                                       {kw}
                                     </span>
                                   ))}
                                 </div>
                               )}
                               {searchAnalysis.intent && (
-                                <div className="flex items-center gap-1">
-                                  <span className="text-xs text-gray-400 shrink-0">Intent:</span>
-                                  <span className="text-xs bg-blue-900/60 text-blue-200 px-2 py-0.5 rounded-full border border-blue-700/50 shrink-0 capitalize">
+                                <div className="flex items-center gap-1 shrink-0">
+                                  <span className="text-xs text-gray-500 shrink-0">Intent:</span>
+                                  <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30 shrink-0 capitalize">
                                     {searchAnalysis.intent}
                                   </span>
-                                </div>
-                              )}
-                              {searchAnalysis.suggestions && searchAnalysis.suggestions.length > 0 && (
-                                <div className="flex items-center gap-1 flex-wrap">
-                                  <span className="text-xs text-gray-400 shrink-0">Suggestions:</span>
-                                  {searchAnalysis.suggestions.slice(0, 3).map((suggestion, i) => (
-                                    <span key={i} className="text-xs bg-green-900/60 text-green-200 px-2 py-0.5 rounded-full border border-green-700/50 shrink-0">
-                                      {suggestion}
-                                    </span>
-                                  ))}
                                 </div>
                               )}
                             </>
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-400 shrink-0">
-                          {searchResults.length} matches
+                      <div className="flex items-center gap-2 shrink-0 ml-2">
+                        <span className="text-xs text-gray-500 shrink-0">
+                          {searchResults.length} results
                         </span>
                         <button
                           onClick={handleClearSearch}
-                          className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1 shrink-0"
+                          className="p-1 text-gray-400 hover:text-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)]/10 rounded transition-colors"
                           title="Clear search"
                         >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                           </svg>
                         </button>
                       </div>
                     </div>
-                    <div className="space-y-1 px-2 pb-2 max-h-48 overflow-y-auto">
-                      {searchResults.slice(0, 15).map((result, idx) => (
+                    {/* Search Results */}
+                    <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                      {searchResults.slice(0, 12).map((result, idx) => (
                         <div
                           key={`${result.filePath}-${result.line}`}
-                          className="bg-gray-700/50 rounded p-2 cursor-pointer hover:bg-gray-700 transition-colors"
+                          className="group bg-[var(--sidebar-bg)] rounded-lg p-2.5 cursor-pointer hover:bg-[var(--border-color)] hover:shadow-md transition-all border border-transparent hover:border-[var(--accent-secondary)]/30"
                           onClick={() => fetchFileContent(selectedRepo!, result.filePath, result.line)}
                         >
-                          <div className="flex items-center gap-1 text-xs text-gray-400 mb-1">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="flex items-center gap-2 text-xs mb-1.5">
+                            <svg className="w-3.5 h-3.5 text-[var(--accent-secondary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
-                            <span className="truncate flex-1">{result.filePath}</span>
-                            <span className="text-purple-400 shrink-0">:{result.line}</span>
+                            <span className="truncate flex-1 font-mono text-gray-400 group-hover:text-gray-300">{result.filePath}</span>
+                            <span className="text-[var(--accent-secondary)] shrink-0 font-mono">:{result.line}</span>
                           </div>
-                          <p className="text-xs text-gray-300 font-mono truncate">
+                          <p className="text-xs text-gray-400 font-mono truncate leading-relaxed group-hover:text-gray-300">
                             {highlightText(result.content, searchQuery)}
                           </p>
                         </div>
                       ))}
-                      {searchResults.length > 15 && (
-                        <p className="text-xs text-gray-500 text-center py-1">
-                          +{searchResults.length - 15} more results. Refine your search.
+                      {searchResults.length > 12 && (
+                        <p className="text-xs text-gray-500 text-center py-2">
+                          +{searchResults.length - 12} more results. Refine your search.
                         </p>
                       )}
                     </div>
                   </div>
                 )}
               </div>
-              {/* File Tree (always visible below search) */}
-              <div className="flex-1 overflow-y-auto p-2 border-t border-gray-700">
+              {/* File Tree */}
+              <div className="flex-1 overflow-y-auto p-2 border-t border-[var(--border-color)]">
                 {selectedRepo ? (
                   files.length > 0 ? (
                     <>
                       {searchActive && searchResults.length > 0 && (
-                        <div className="mb-2 px-1">
-                          <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">
-                            File Browser
-                          </p>
+                        <div className="mb-2 px-2">
+                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">File Browser</p>
                         </div>
                       )}
                       {renderFileTree(files)}
                     </>
                   ) : (
-                    <p className="text-gray-500 text-sm text-center mt-8">
-                      {Object.keys(repoStatuses).length === 0
-                        ? 'No repositories cloned yet'
-                        : repoStatuses[selectedRepo]?.progress.status !== 'completed'
-                        ? 'Waiting for clone to complete...'
-                        : 'No files found'}
-                    </p>
+                    <div className="flex flex-col items-center justify-center h-full text-center px-4">
+                      <svg className="w-10 h-10 text-gray-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                      </svg>
+                      <p className="text-gray-500 text-sm">
+                        {repoStatuses[selectedRepo]?.progress.status !== 'completed'
+                          ? 'Cloning in progress...'
+                          : 'No files found'}
+                      </p>
+                    </div>
                   )
                 ) : (
-                  <p className="text-gray-500 text-sm text-center mt-8">
-                    Select a repository from the left
-                  </p>
+                  <div className="flex flex-col items-center justify-center h-full text-center px-4">
+                    <svg className="w-10 h-10 text-gray-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                    </svg>
+                    <p className="text-gray-500 text-sm">Select a repository</p>
+                  </div>
                 )}
               </div>
             </div>
 
             {/* File Content Viewer */}
-            <div className="flex-1 bg-gray-900 overflow-hidden flex flex-col">
+            <div className="flex-1 bg-[var(--background)] overflow-hidden flex flex-col">
               {fileContent ? (
                 <>
-                  <div className="p-3 border-b border-gray-700 bg-gray-800 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="px-3 sm:px-4 py-2.5 border-b border-[var(--border-color)] bg-[var(--panel-bg)] flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <svg className="w-4 h-4 text-[var(--accent-primary)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
-                      <p className="text-gray-400 text-sm font-mono truncate">{fileContent.path}</p>
+                      <p className="text-gray-400 text-xs sm:text-sm font-mono truncate">{fileContent.path}</p>
                     </div>
                   </div>
-                  <div className="flex-1 overflow-auto p-4">
-                    <pre className="text-sm text-gray-300 font-mono">
+                  <div className="flex-1 overflow-auto">
+                    <pre className="text-xs sm:text-sm text-gray-300 font-mono leading-relaxed">
                       <code>
                         {fileContent.lines.map((line, idx) => (
                           <div
                             key={idx}
-                            className={`${
+                            className={`flex hover:bg-[var(--panel-bg)] transition-colors ${
                               fileContent.highlightLine === idx + 1
-                                ? 'bg-purple-900/50 -mx-4 px-4 border-l-2 border-purple-500'
+                                ? 'bg-[var(--accent-secondary)]/10 border-l-2 border-[var(--accent-secondary)]'
                                 : ''
                             }`}
                           >
-                            <span className="text-gray-600 select-none w-12 inline-block text-right mr-4">
+                            <span className="text-gray-600 select-none w-8 sm:w-12 text-right pr-3 sm:pr-4 py-0.5 bg-[var(--panel-bg)] border-r border-[var(--border-color)] shrink-0">
                               {idx + 1}
                             </span>
-                            {line || ' '}
+                            <span className="flex-1 pr-4 py-0.5 whitespace-pre overflow-x-auto">
+                              {line || ' '}
+                            </span>
                           </div>
                         ))}
                       </code>
@@ -1012,76 +1070,70 @@ export default function Home() {
                   </div>
                 </>
               ) : searchActive && searchResults.length > 0 ? (
-                <div className="flex-1 flex items-center justify-center">
-                  <div className="text-center">
-                    <svg
-                      className="w-16 h-16 text-gray-700 mx-auto mb-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1}
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                      />
-                    </svg>
-                    <p className="text-gray-500">Select a search result to view the file</p>
-                    <p className="text-gray-600 text-sm mt-2">Found {searchResults.length} matches for &quot;{searchQuery}&quot;</p>
+                <div className="flex-1 flex items-center justify-center bg-gradient-to-b from-[var(--panel-bg)] to-[var(--background)]">
+                  <div className="text-center px-4">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[var(--accent-secondary)]/20 to-[var(--accent-primary)]/20 flex items-center justify-center">
+                      <svg className="w-8 h-8 text-[var(--accent-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                    <p className="text-gray-400 text-sm mb-1">Select a result to view</p>
+                    <p className="text-gray-500 text-xs">
+                      Found <span className="text-[var(--accent-secondary)] font-medium">{searchResults.length}</span> matches
+                    </p>
                   </div>
                 </div>
               ) : (
-                <div className="flex-1 flex items-center justify-center">
-                  <div className="text-center">
-                    <svg
-                      className="w-16 h-16 text-gray-700 mx-auto mb-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1}
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                    <p className="text-gray-500">Select a file to view its contents</p>
-                    <p className="text-gray-600 text-sm mt-2">Or use AI Chat to ask questions</p>
+                <div className="flex-1 flex items-center justify-center bg-gradient-to-b from-[var(--panel-bg)] to-[var(--background)]">
+                  <div className="text-center px-4">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[var(--accent-primary)]/20 to-[var(--accent-secondary)]/20 flex items-center justify-center">
+                      <svg className="w-8 h-8 text-[var(--accent-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                      </svg>
+                    </div>
+                    <p className="text-gray-400 text-sm mb-1">Explore your codebase</p>
+                    <p className="text-gray-500 text-xs">Select a file or use AI Chat</p>
                   </div>
                 </div>
               )}
             </div>
           </div>
 
-          {/* AI Chat Panel */}
+          {/* AI Chat Panel - Fixed width, slides in on mobile */}
           {chatOpen && (
-            <div className="w-96 bg-gray-850 border-l border-gray-700 flex flex-col">
-              <div className="p-4 border-b border-gray-700 flex items-center justify-between">
-                <div>
-                  <h3 className="text-white font-semibold">AI Code Assistant</h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className={`inline-block w-2 h-2 rounded-full ${ollamaAvailable ? 'bg-green-500' : 'bg-yellow-500'}`} />
-                    <p className="text-xs text-gray-400">
-                      {ollamaAvailable
-                        ? (indexStatus?.indexed ? `${indexStatus.chunkCount} chunks indexed` : 'Ready (no index)')
-                        : 'Basic search mode (Ollama not running)'}
-                    </p>
+            <div className="w-full sm:w-96 bg-[var(--panel-bg)] border-l border-[var(--border-color)] flex flex-col absolute right-0 top-0 h-full z-50 shadow-2xl">
+              {/* Chat Header */}
+              <div className="px-4 py-3 border-b border-[var(--border-color)] bg-gradient-to-r from-[var(--accent-secondary)]/10 to-[var(--panel-bg)] flex items-center justify-between">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--accent-secondary)] to-purple-600 flex items-center justify-center shrink-0 shadow-md">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-white font-semibold text-sm">AI Assistant</h3>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className={`w-2 h-2 rounded-full ${ollamaAvailable ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'}`} />
+                      <p className="text-xs text-gray-400 truncate">
+                        {ollamaAvailable
+                          ? (indexStatus?.indexed ? `${indexStatus.chunkCount} chunks indexed` : 'Ready')
+                          : 'Basic mode'}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 shrink-0">
                   {!indexStatus?.indexed && !indexStatus?.indexing && ollamaAvailable && (
                     <button
                       onClick={handleStartIndex}
-                      className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded transition-colors"
+                      className="px-2.5 py-1.5 bg-gradient-to-r from-[var(--accent-secondary)] to-purple-600 hover:from-purple-500 hover:to-purple-500 text-white text-xs rounded-lg transition-all shadow-md hover:shadow-lg"
                     >
-                      Index Repo
+                      Index
                     </button>
                   )}
                   <button
                     onClick={() => setChatOpen(false)}
-                    className="text-gray-400 hover:text-white"
+                    className="p-1.5 text-gray-400 hover:text-white hover:bg-[var(--border-color)] rounded-lg transition-colors"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1090,8 +1142,9 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                {/* CURSOR-LIKE Progress Panel (shown during search) */}
+              {/* Chat Messages */}
+              <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3">
+                {/* Progress Panel during search */}
                 {isChatLoading && agentEvents.length > 0 && (
                   <div className="sticky top-0 z-10">
                     <AgentProgress events={agentEvents} />
@@ -1103,58 +1156,54 @@ export default function Home() {
                   </div>
                 )}
 
+                {/* Empty State */}
                 {chatMessages.length === 0 && streamEvents.length === 0 && !isChatLoading ? (
                   <div className="text-center text-gray-500 mt-8 px-4">
-                    <svg className="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                    </svg>
-                    <p className="text-sm font-medium text-gray-400">AI Code Assistant</p>
-                    <p className="text-xs mt-1 mb-4">
-                      {ollamaAvailable
-                        ? 'Ask questions about your codebase'
-                        : 'Basic search mode - works without Ollama'}
-                    </p>
+                    <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[var(--accent-secondary)]/20 to-purple-500/20 flex items-center justify-center">
+                      <svg className="w-7 h-7 text-[var(--accent-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                      </svg>
+                    </div>
+                    <p className="text-sm font-medium text-gray-300 mb-1">AI Code Assistant</p>
                     <p className="text-xs text-gray-500 mb-4">
-                      {ollamaAvailable
-                        ? 'Index repo for smarter semantic search'
-                        : 'Install Ollama for AI-powered answers'}
+                      {ollamaAvailable ? 'Powered by Ollama' : 'Basic search mode'}
                     </p>
 
-                    <div className="text-left bg-gray-800/50 rounded-lg p-3 space-y-2">
-                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Example prompts:</p>
-                      <button onClick={() => setChatInput('Find all authentication methods in this codebase')} className="w-full text-left text-xs text-purple-300 hover:text-purple-200 hover:bg-gray-700/50 rounded px-2 py-1.5 transition-colors flex items-center gap-2">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                        Find all authentication methods
-                      </button>
-                      <button onClick={() => setChatInput('Show me how API endpoints are structured')} className="w-full text-left text-xs text-purple-300 hover:text-purple-200 hover:bg-gray-700/50 rounded px-2 py-1.5 transition-colors flex items-center gap-2">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m-9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
-                        Show API endpoint structure
-                      </button>
-                      <button onClick={() => setChatInput('Where are database connections configured?')} className="w-full text-left text-xs text-purple-300 hover:text-purple-200 hover:bg-gray-700/50 rounded px-2 py-1.5 transition-colors flex items-center gap-2">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" /></svg>
-                        Find database configuration
-                      </button>
-                      <button onClick={() => setChatInput('Explain the main entry point and how the app starts')} className="w-full text-left text-xs text-purple-300 hover:text-purple-200 hover:bg-gray-700/50 rounded px-2 py-1.5 transition-colors flex items-center gap-2">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        Explain app entry point
-                      </button>
-                      <button onClick={() => setChatInput('Find all error handling patterns used')} className="w-full text-left text-xs text-purple-300 hover:text-purple-200 hover:bg-gray-700/50 rounded px-2 py-1.5 transition-colors flex items-center gap-2">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                        Find error handling patterns
-                      </button>
+                    <div className="text-left space-y-2">
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Try asking:</p>
+                      {[
+                        { text: 'Find authentication methods', icon: '🔍' },
+                        { text: 'Show API structure', icon: '🔌' },
+                        { text: 'Database config?', icon: '🗄️' },
+                        { text: 'Explain entry point', icon: '📖' },
+                      ].map((suggestion, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setChatInput([
+                            'Find all authentication methods in this codebase',
+                            'Show me how API endpoints are structured',
+                            'Where are database connections configured?',
+                            'Explain the main entry point and how the app starts',
+                          ][i])}
+                          className="w-full text-left text-xs text-gray-300 hover:text-[var(--accent-secondary)] hover:bg-[var(--sidebar-bg)] rounded-lg px-3 py-2 transition-all flex items-center gap-2"
+                        >
+                          <span className="text-sm">{suggestion.icon}</span>
+                          {suggestion.text}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 ) : (
                   <>
-                    {/* Streaming progress events */}
+                    {/* Streaming events */}
                     {streamEvents.map((event, idx) => (
                       <div key={idx} className="flex justify-start">
-                        <div className="max-w-[85%] rounded-lg p-3 bg-gray-800/50 text-gray-300 border border-gray-700">
+                        <div className="max-w-[85%] rounded-xl p-3 bg-[var(--sidebar-bg)]/50 text-gray-300 border border-[var(--border-color)]">
                           {event.type === 'thinking' && (
                             <div className="flex items-center gap-2">
-                              <svg className="animate-spin h-4 w-4 text-purple-400" fill="none" viewBox="0 0 24 24">
+                              <svg className="animate-spin h-4 w-4 text-[var(--accent-secondary)]" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                               </svg>
                               <p className="text-xs">{event.data.message}</p>
                             </div>
@@ -1164,7 +1213,7 @@ export default function Home() {
                               <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                               </svg>
-                              <p className="text-xs">{event.data.message} ({event.data.matches} matches)</p>
+                              <p className="text-xs">{event.data.message}</p>
                             </div>
                           )}
                           {event.type === 'found' && (
@@ -1175,31 +1224,21 @@ export default function Home() {
                               <p className="text-xs text-green-300">{event.data.message}</p>
                             </div>
                           )}
-                          {event.type === 'suggestion' && (
-                            <div>
-                              <p className="text-xs text-yellow-300 mb-1">{event.data.message}</p>
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {event.data.suggestions?.map((s, i) => (
-                                  <span key={i} className="text-xs bg-gray-700 px-2 py-0.5 rounded text-purple-300">{s}</span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
                         </div>
                       </div>
                     ))}
 
-                    {/* Chat messages - VS Code-like format */}
+                    {/* Chat messages */}
                     {chatMessages.map((msg, idx) => (
                       <div
                         key={idx}
                         className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                       >
                         <div
-                          className={`max-w-[85%] rounded-lg p-3 ${
+                          className={`max-w-[85%] rounded-2xl p-3 ${
                             msg.role === 'user'
-                              ? 'bg-purple-600 text-white'
-                              : 'bg-gray-800 border border-gray-700 text-gray-100'
+                              ? 'bg-gradient-to-r from-[var(--accent-secondary)] to-purple-600 text-white shadow-lg'
+                              : 'bg-[var(--sidebar-bg)] border border-[var(--border-color)] text-gray-100'
                           }`}
                         >
                           {msg.role === 'user' ? (
@@ -1216,10 +1255,12 @@ export default function Home() {
                     ))}
                   </>
                 )}
+
+                {/* Loading indicator */}
                 {isChatLoading && streamEvents.length === 0 && (
                   <div className="flex justify-start">
-                    <div className="bg-gray-700 rounded-lg p-3">
-                      <div className="flex gap-1">
+                    <div className="bg-[var(--sidebar-bg)] rounded-xl p-3 border border-[var(--border-color)]">
+                      <div className="flex gap-1.5">
                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -1227,11 +1268,13 @@ export default function Home() {
                     </div>
                   </div>
                 )}
+
                 <AgentThoughts thinking={currentThinking} isComplete={streamEvents.some(e => e.type === 'complete')} />
                 <div ref={chatEndRef} />
               </div>
 
-              <div className="p-4 border-t border-gray-700">
+              {/* Chat Input */}
+              <div className="p-3 sm:p-4 border-t border-[var(--border-color)] bg-[var(--sidebar-bg)]">
                 <form
                   onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }}
                   className="flex gap-2"
@@ -1241,13 +1284,13 @@ export default function Home() {
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
                     placeholder="Ask about the code..."
-                    className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                    className="flex-1 px-3 sm:px-4 py-2.5 bg-[var(--panel-bg)] border border-[var(--border-color)] rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[var(--accent-secondary)] focus:border-transparent transition-all"
                     disabled={isChatLoading}
                   />
                   <button
                     type="submit"
                     disabled={isChatLoading || !chatInput.trim()}
-                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded transition-colors"
+                    className="px-3 sm:px-4 py-2.5 bg-gradient-to-r from-[var(--accent-secondary)] to-purple-600 hover:from-purple-500 hover:to-purple-500 disabled:from-gray-600 disabled:to-gray-500 disabled:cursor-not-allowed text-white rounded-xl transition-all shadow-md hover:shadow-lg"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -1257,7 +1300,6 @@ export default function Home() {
               </div>
             </div>
           )}
-        </div>
       </div>
     </div>
   );

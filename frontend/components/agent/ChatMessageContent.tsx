@@ -72,7 +72,7 @@ export function ChatMessageContent({ content, codeReferences = [], onCodeClick }
       {parsedSections.map((section, idx) => {
         if (section.type === 'header') {
           return (
-            <h4 key={idx} className="text-sm font-semibold text-purple-300 mt-3 mb-1 first:mt-0">
+            <h4 key={idx} className="text-sm font-semibold text-[var(--accent-secondary)] mt-3 mb-1 first:mt-0">
               {section.content}
             </h4>
           );
@@ -85,7 +85,6 @@ export function ChatMessageContent({ content, codeReferences = [], onCodeClick }
           );
         }
         if (section.type === 'text') {
-          // Render text with inline formatting
           return (
             <p key={idx} className="text-sm text-gray-200 whitespace-pre-wrap">
               {section.content.split(/(\*\*.*?\*\*|`.*?`)/g).map((part, i) => {
@@ -93,7 +92,7 @@ export function ChatMessageContent({ content, codeReferences = [], onCodeClick }
                   return <strong key={i} className="text-white">{part.slice(2, -2)}</strong>;
                 }
                 if (part.startsWith('`') && part.endsWith('`')) {
-                  return <code key={i} className="bg-gray-800 px-1.5 py-0.5 rounded text-xs text-cyan-300">{part.slice(1, -1)}</code>;
+                  return <code key={i} className="bg-[var(--sidebar-bg)] px-1.5 py-0.5 rounded text-xs text-[var(--accent-primary)] border border-[var(--border-color)]">{part.slice(1, -1)}</code>;
                 }
                 return part;
               })}
@@ -103,15 +102,15 @@ export function ChatMessageContent({ content, codeReferences = [], onCodeClick }
         return null;
       })}
 
-      {/* Code references as VS Code-style cards */}
+      {/* Code references */}
       {codeReferences.length > 0 && (
         <div className="mt-4 space-y-2">
           <div className="flex items-center gap-2 mb-2">
-            <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-[var(--accent-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-              Code References ({codeReferences.length})
+              Code ({codeReferences.length})
             </span>
           </div>
 
@@ -121,39 +120,38 @@ export function ChatMessageContent({ content, codeReferences = [], onCodeClick }
             return (
               <div
                 key={idx}
-                className="bg-gray-800/50 border border-gray-700 rounded-lg overflow-hidden hover:border-purple-600/50 transition-colors"
+                className="bg-[var(--sidebar-bg)]/50 border border-[var(--border-color)] rounded-xl overflow-hidden hover:border-[var(--accent-secondary)]/50 hover:shadow-lg transition-all"
               >
-                {/* Header with file path and line - using div instead of button */}
                 <div
                   onClick={() => onCodeClick?.(ref.filePath, ref.startLine)}
-                  className="w-full flex items-center justify-between px-3 py-2 bg-gray-800/80 hover:bg-gray-700/80 transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-between px-3 py-2.5 bg-[var(--panel-bg)]/80 hover:bg-[var(--panel-bg)] transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-2 min-w-0">
-                    <svg className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3.5 h-3.5 text-[var(--accent-secondary)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    <span className="text-xs text-purple-300 font-mono truncate">
+                    <span className="text-xs text-[var(--accent-secondary)] font-mono truncate">
                       {ref.filePath}:{ref.startLine}
                     </span>
                     {ref.endLine > ref.startLine && (
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-gray-500 shrink-0 ml-1">
                         ({ref.endLine - ref.startLine + 1} lines)
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 shrink-0">
                     <div
                       onClick={(e) => copyToClipboard(ref.content, e)}
-                      className="p-1 hover:bg-gray-600 rounded transition-colors cursor-pointer"
+                      className="p-1.5 hover:bg-[var(--border-color)] rounded-lg transition-colors cursor-pointer"
                       title="Copy code"
                     >
-                      <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3.5 h-3.5 text-gray-400 hover:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                       </svg>
                     </div>
                     <div
                       onClick={(e) => { e.stopPropagation(); toggleCodeExpand(idx); }}
-                      className="p-1 hover:bg-gray-600 rounded transition-colors cursor-pointer"
+                      className="p-1.5 hover:bg-[var(--border-color)] rounded-lg transition-colors cursor-pointer"
                       title={isExpanded ? 'Collapse' : 'Expand'}
                     >
                       <svg
@@ -170,7 +168,7 @@ export function ChatMessageContent({ content, codeReferences = [], onCodeClick }
 
                 {/* Code preview */}
                 {isExpanded && (
-                  <div className="px-3 py-2 bg-gray-900/50 border-t border-gray-700">
+                  <div className="px-3 py-2.5 bg-[var(--background)] border-t border-[var(--border-color)]">
                     <pre className="text-xs text-gray-300 overflow-x-auto font-mono leading-relaxed">
                       <code>{ref.content}</code>
                     </pre>

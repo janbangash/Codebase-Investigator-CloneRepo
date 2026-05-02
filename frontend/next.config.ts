@@ -4,6 +4,11 @@ const nextConfig: NextConfig = {
   // Allow ngrok origin in development
   allowedDevOrigins: ['enrich-sappiness-aloe.ngrok-free.dev'],
 
+  // Use webpack instead of turbopack for compatibility
+  turbopack: {
+    resolveAlias: {},
+  },
+
   // Disable HTTP agent keep-alive for better SSE streaming
   httpAgentOptions: {
     keepAlive: false,
