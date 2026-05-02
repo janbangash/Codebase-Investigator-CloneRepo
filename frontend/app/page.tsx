@@ -594,13 +594,13 @@ export default function Home() {
   };
 
   const renderFileTree = (entries: FileEntry[], depth = 0, parentPath = '') => {
-    return entries.map((entry) => {
+    return entries.map((entry, idx) => {
       const fullPath = entry.path;
       const isExpanded = expandedFolders?.has(fullPath) || false;
       const children = folderChildren[fullPath] || [];
 
       return (
-        <div key={fullPath}>
+        <div key={`${fullPath}-${idx}`}>
           <div
             className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-all group ${
               fileContent?.path === fullPath
@@ -973,7 +973,7 @@ export default function Home() {
                     <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
                       {searchResults.slice(0, 12).map((result, idx) => (
                         <div
-                          key={`${result.filePath}-${result.line}`}
+                          key={`${result.filePath}-${result.line ?? 0}-${idx}`}
                           className="group bg-[var(--sidebar-bg)] rounded-lg p-2.5 cursor-pointer hover:bg-[var(--border-color)] hover:shadow-md transition-all border border-transparent hover:border-[var(--accent-secondary)]/30"
                           onClick={() => fetchFileContent(selectedRepo!, result.filePath, result.line)}
                         >
@@ -1231,7 +1231,7 @@ export default function Home() {
                     {/* Chat messages */}
                     {chatMessages.map((msg, idx) => (
                       <div
-                        key={idx}
+                        key={`${msg.role}-${idx}-${msg.content.slice(0, 20)}`}
                         className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                       >
                         <div
